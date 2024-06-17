@@ -1,5 +1,5 @@
 import express from "express";
-import cors from "cors"; // Importa cors
+import cors from "cors";
 import clientRoutes from "./routes/client.routes.js";
 import bebidasRoutes from "./routes/bebidas.routes.js";
 import carnesRoutes from "./routes/carnes.routes.js";
@@ -14,10 +14,11 @@ import snacksRoutes from "./routes/snacks.routes.js";
 
 const app = express();
 
-// Aplica CORS
+
 app.use(cors({
-    origin: 'http://localhost:4200', // Permite solicitudes solo desde http://localhost:4200
+    origin: 'http://localhost:4200',
 }));
+
 
 // Define tus rutas
 app.use(clientRoutes);
@@ -32,7 +33,12 @@ app.use(ropaRoutes);
 app.use(medicinaRoutes);
 app.use(snacksRoutes);
 
-// Inicia tu servidor
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Error en el servidor');
+});
+
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en puerto ${PORT}`);
