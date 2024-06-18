@@ -51,4 +51,75 @@ export const agregarCosmetico = async (req, res) => {
     }
 };
 
+export const actualizarCosmetico = async (req, res) => {
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();
+
+        const { id_producto, nombre, precio, categoria, link, tipo_cosmetico, contenido } = req.body;
+
+        // Validar los campos requeridos
+        if (!id_producto || !nombre || !precio || !categoria || !link || !tipo_cosmetico || !contenido) {
+            return res.status(400).json({ message: 'Faltan datos necesarios' });
+        }
+
+        // Actualizar en la tabla productos
+        await connection.query(
+            'UPDATE productos SET nombre = ?, precio = ?, categoria = ?, link = ? WHERE id_producto = ?',
+            [nombre, precio, categoria, link, id_producto]
+        );
+
+        // Actualizar en la tabla cosmeticos
+        await connection.query(
+            'UPDATE cosmeticos SET tipo_cosmetico = ?, contenido = ? WHERE id_producto = ?',
+            [tipo_cosmetico, contenido, id_producto]
+        );
+
+        await connection.commit();
+        res.status(200).json({ message: 'Producto de cosmético actualizado correctamente' });
+
+    } catch (error) {
+        await connection.rollback();
+        console.error(error);
+        if (!res.headersSent) {
+            res.status(500).json({ message: 'Error al actualizar producto de cosmético', error: error.message });
+        }
+    } finally {
+        connection.release();
+    }
+};
+
+export const eliminarCosmetico = async (req, res) => {
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();
+
+        const { id } = req.params;
+
+        // Eliminar de la tabla cosmeticos
+        await connection.query(
+            'DELETE FROM cosmeticos WHERE id_producto = ?',
+            [id]
+        );
+
+        // Eliminar de la tabla productos
+        await connection.query(
+            'DELETE FROM producto WHERE id_producto = ?',
+            [id]
+        );
+
+        await connection.commit();
+        res.status(200).json({ message: 'Producto de cosmético eliminado correctamente' });
+
+    } catch (error) {
+        await connection.rollback();
+        console.error(error);
+        if (!res.headersSent) {
+            res.status(500).json({ message: 'Error al eliminar producto de cosmético', error: error.message });
+        }
+    } finally {
+        connection.release();
+    }
+};
+
 
