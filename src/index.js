@@ -37,6 +37,18 @@ app.post('/api/login', async (req, res) => {
     res.json({ success: false });
   }
 });
+// Ruta de loginAdmin
+app.post('/api/loginAdministrador', async (req, res) => {
+  const { email, password } = req.body;
+  const [result] = await pool.query('SELECT * FROM admin WHERE email = ? AND password = ?', [email, password]);
+
+  if (result.length > 0) {
+    res.json({ success: true });
+  } else {
+    res.json({ success: false });
+  }
+});
+
 
 // Define tus rutas
 app.use(clientRoutes);
