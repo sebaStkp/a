@@ -12,6 +12,7 @@ import panaderiaRoutes from "./routes/panaderia.routes.js";
 import ropaRoutes from "./routes/ropa.routes.js";
 import medicinaRoutes from "./routes/salud.routes.js";
 import snacksRoutes from "./routes/snacks.routes.js";
+import registerRoutes from "./routes/register.routes.js";
 
 
 const app = express();
@@ -36,6 +37,18 @@ app.post('/api/login', async (req, res) => {
     res.json({ success: false });
   }
 });
+// Ruta de loginAdmin
+app.post('/api/loginAdministrador', async (req, res) => {
+  const { email, password } = req.body;
+  const [result] = await pool.query('SELECT * FROM admin WHERE email = ? AND password = ?', [email, password]);
+
+  if (result.length > 0) {
+    res.json({ success: true });
+  } else {
+    res.json({ success: false });
+  }
+});
+
 
 // Define tus rutas
 app.use(clientRoutes);
@@ -49,6 +62,7 @@ app.use(panaderiaRoutes);
 app.use(ropaRoutes);
 app.use(medicinaRoutes);
 app.use(snacksRoutes);
+app.use(registerRoutes);
 
 app.use((err, req, res, next) => {
     console.error(err.stack);
