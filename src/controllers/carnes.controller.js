@@ -70,7 +70,7 @@ export const actualizarCarne = async (req, res) => {
 
         // Actualizar en la tabla carne
         await connection.query(
-            'UPDATE carne SET tipo_carne = ?, peso = ?, fecha_expiracion = ? WHERE id_producto = ?',
+            'UPDATE carnes SET tipo_carne = ?, peso = ?, fecha_expiracion = ? WHERE id_producto = ?',
             [tipo_carne, peso, fecha_expiracion, id_producto]
         );
 
@@ -119,5 +119,26 @@ export const eliminarCarne = async (req, res) => {
         }
     } finally {
         connection.release();
+    }
+};
+
+export const getCarne = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await pool.query(
+            `SELECT p.id_producto, p.nombre, p.precio, p.categoria, p.link, c.tipo_carne, c.peso 
+            FROM producto as p 
+            JOIN carnes as c ON p.id_producto = c.id_producto
+            WHERE p.id_producto = ?`, [id]
+        );
+
+        if (result.length > 0) {
+            res.status(200).json(result[0]);
+        } else {
+            res.status(404).json({ message: `No se encontró producto con ID ${id}` });
+        }
+    } catch (error) {
+        console.error('Error al obtener carne:', error);
+        res.status(500).json({ message: 'Error interno del servidor' });
     }
 };

@@ -63,13 +63,13 @@ export const actualizarRopa = async (req, res) => {
 
         // Actualizar en la tabla productos
         await connection.query(
-            'UPDATE productos SET nombre = ?, precio = ?, categoria = ?, link = ? WHERE id_producto = ?',
+            'UPDATE producto SET nombre = ?, precio = ?, categoria = ?, link = ? WHERE id_producto = ?',
             [nombre, precio, categoria, link, id_producto]
         );
 
         // Actualizar en la tabla ropas
         await connection.query(
-            'UPDATE ropas SET tipo_ropa = ?, talla = ? WHERE id_producto = ?',
+            'UPDATE ropa SET tipo_ropa = ?, talla = ? WHERE id_producto = ?',
             [tipo_ropa, talla, id_producto]
         );
 
@@ -117,5 +117,26 @@ export const eliminarRopa = async (req, res) => {
         }
     } finally {
         connection.release();
+    }
+};
+
+export const getR = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await pool.query(
+            `SELECT p.id_producto, p.nombre, p.precio, p.categoria, p.link, r.tipo_ropa, r.talla 
+            FROM producto as p 
+            JOIN ropa as r ON p.id_producto = r.id_producto
+            WHERE p.id_producto = ?`, [id]
+        );
+
+        if (result.length > 0) {
+            res.status(200).json(result[0]);
+        } else {
+            res.status(404).json({ message: `No se encontró producto con ID ${id}` });
+        }
+    } catch (error) {
+        console.error('Error al obtener ropa:', error);
+        res.status(500).json({ message: 'Error interno del servidor' });
     }
 };

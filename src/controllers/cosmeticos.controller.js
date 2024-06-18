@@ -65,7 +65,7 @@ export const actualizarCosmetico = async (req, res) => {
 
         // Actualizar en la tabla productos
         await connection.query(
-            'UPDATE productos SET nombre = ?, precio = ?, categoria = ?, link = ? WHERE id_producto = ?',
+            'UPDATE producto SET nombre = ?, precio = ?, categoria = ?, link = ? WHERE id_producto = ?',
             [nombre, precio, categoria, link, id_producto]
         );
 
@@ -122,4 +122,24 @@ export const eliminarCosmetico = async (req, res) => {
     }
 };
 
+export const getCosmetico = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await pool.query(
+            `SELECT p.id_producto, p.nombre, p.precio, p.categoria, p.link, c.tipo_cosmetico, c.contenido 
+            FROM producto as p 
+            JOIN cosmeticos as c ON p.id_producto = c.id_producto
+            WHERE p.id_producto = ?`, [id]
+        );
+
+        if (result.length > 0) {
+            res.status(200).json(result[0]);
+        } else {
+            res.status(404).json({ message: `No se encontró producto con ID ${id}` });
+        }
+    } catch (error) {
+        console.error('Error al obtener cosmético:', error);
+        res.status(500).json({ message: 'Error interno del servidor' });
+    }
+};
 

@@ -70,7 +70,7 @@ export const actualizarBebida = async (req, res) => {
 
         // Actualizar en la tabla bebida
         await connection.query(
-            'UPDATE bebida SET volumen = ?, alcoholico = ? WHERE id_producto = ?',
+            'UPDATE bebidas SET volumen = ?, alcoholico = ? WHERE id_producto = ?',
             [volumen, alcoholico, id_producto]
         );
 
@@ -121,6 +121,25 @@ export const eliminarBebida = async (req, res) => {
         connection.release();
     }
 };
+export const getBebida = async (req, res) => {
+    const { id } = req.params; // Obtener el ID desde los parámetros de la solicitud
+    try {
+        const result = await pool.query(
+            `SELECT p.id_producto, p.nombre, p.precio, p.categoria, p.link, b.volumen, b.alcoholico 
+            FROM producto as p 
+            JOIN bebidas as b ON p.id_producto = b.id_producto
+            WHERE p.id_producto = ?`, [id]
+        );
 
+        if (result.length > 0) {
+            res.status(200).json(result[0]); // Enviar el primer elemento del resultado como JSON
+        } else {
+            res.status(404).json({ message: `No se encontró producto con ID ${id}` });
+        }
+    } catch (error) {
+        console.error('Error al obtener bebida:', error);
+        res.status(500).json({ message: 'Error interno del servidor' });
+    }
+};
 
 

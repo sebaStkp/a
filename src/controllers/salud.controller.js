@@ -64,7 +64,7 @@ export const actualizarSaludMedicamento = async (req, res) => {
 
         // Actualizar en la tabla productos
         await connection.query(
-            'UPDATE productos SET nombre = ?, precio = ?, categoria = ?, link = ? WHERE id_producto = ?',
+            'UPDATE producto SET nombre = ?, precio = ?, categoria = ?, link = ? WHERE id_producto = ?',
             [nombre, precio, categoria, link, id_producto]
         );
 
@@ -121,3 +121,25 @@ export const eliminarSaludMedicamento = async (req, res) => {
         connection.release();
     }
 };
+
+export const getMed = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await pool.query(
+            `SELECT p.id_producto, p.nombre, p.precio, p.categoria, p.link, sm.tipo_producto, sm.dosis, sm.fecha_expiracion 
+            FROM producto as p 
+            JOIN salud_medicamentos as sm ON p.id_producto = sm.id_producto
+            WHERE p.id_producto = ?`, [id]
+        );
+
+        if (result.length > 0) {
+            res.status(200).json(result[0]);
+        } else {
+            res.status(404).json({ message: `No se encontró producto con ID ${id}` });
+        }
+    } catch (error) {
+        console.error('Error al obtener producto de salud o medicamento:', error);
+        res.status(500).json({ message: 'Error interno del servidor' });
+    }
+};
+
