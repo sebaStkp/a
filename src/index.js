@@ -12,6 +12,7 @@ import panaderiaRoutes from "./routes/panaderia.routes.js";
 import ropaRoutes from "./routes/ropa.routes.js";
 import medicinaRoutes from "./routes/salud.routes.js";
 import snacksRoutes from "./routes/snacks.routes.js";
+import registerRoutes from "./routes/register.routes.js";
 
 
 const app = express();
@@ -49,6 +50,7 @@ app.use(panaderiaRoutes);
 app.use(ropaRoutes);
 app.use(medicinaRoutes);
 app.use(snacksRoutes);
+app.use(registerRoutes);
 
 app.use((err, req, res, next) => {
     console.error(err.stack);
